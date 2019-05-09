@@ -1,13 +1,14 @@
 # EveHBase
+## Introductions
 - 针对华为HBase封装的客户端EveHBase
 - 支持普通客户端、安全模式客户端，
 - 功能包括：建表、预分区、建索引、异步请求、Put、Get、Scan、结果自动解析为JavaBean等
 
-# Dependencies
+## Dependencies
 - 本项目EveHBase.jar ---> 从releases处获取
 - 华为HBase一系列依赖包 ---> 从华为HBase集群中获取
 
-# Examples
+## Examples
 - 创建普通客户端
 ```java
 // HBase配置
@@ -199,7 +200,7 @@ client.putAsync("tb_test", putList, new PutCallback() {
 client.putAsync("tb_test", putList, null);
 ```
 
-# LICENSE
+## LICENSE
 ```
 Copyright 2019 ALion
 
