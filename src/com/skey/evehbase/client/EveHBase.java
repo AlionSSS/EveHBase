@@ -1,5 +1,6 @@
 package com.skey.evehbase.client;
 
+import com.skey.evehbase.pool.PoolConf;
 import com.skey.evehbase.pool.PoolEngine;
 import com.skey.evehbase.request.*;
 import com.skey.evehbase.security.SecurityConf;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * HBase客户端
@@ -163,7 +165,7 @@ public class EveHBase implements HBaseClient {
         TableName tn = TableName.valueOf(tableName);
 
         // 创建索引实例
-        if (indexName == null || indexName.trim().equals("")){
+        if (indexName == null || indexName.trim().equals("")) {
             indexName = tableName + "_" + familyName + "_" + qualifier + "_idx";
         }
         IndexSpecification iSpec = new IndexSpecification(indexName);
@@ -201,7 +203,7 @@ public class EveHBase implements HBaseClient {
 
     @Override
     public void putAsync(@Nonnull String tableName, @Nonnull List<Put> putList, PutCallback callback) {
-        PoolEngine.INSTANCE.execute(() -> {
+        PoolEngine.getInstance().execute(() -> {
             try {
                 put(tableName, putList);
                 if (callback != null) callback.onSuccessful();
@@ -248,7 +250,7 @@ public class EveHBase implements HBaseClient {
             scanner = table.getScanner(eveScan.getScan());
             int i = 0;
             long max = eveScan.getMax();
-            Result r ;
+            Result r;
             while ((r = scanner.next()) != null && i <= max) {
                 results.add(r);
                 i++;
@@ -268,7 +270,7 @@ public class EveHBase implements HBaseClient {
 
     @Override
     public <T> void scanAsync(@Nonnull EveScan eveScan, @Nonnull ResultCallback<T> callback) {
-        PoolEngine.INSTANCE.execute(() -> {
+        PoolEngine.getInstance().execute(() -> {
             try {
                 Class<T> clazz = (Class<T>) GenericUtils.getInterfaceT(callback)[0];
                 List<T> result = scan(eveScan, clazz);
@@ -307,7 +309,7 @@ public class EveHBase implements HBaseClient {
 
     @Override
     public <T> void getAsync(@Nonnull EveGet eveGet, @Nonnull ResultCallback<T> callback) {
-        PoolEngine.INSTANCE.execute(() -> {
+        PoolEngine.getInstance().execute(() -> {
             try {
                 Class<T> clazz = (Class<T>) GenericUtils.getInterfaceT(callback)[0];
                 List<T> results = get(eveGet, clazz);
@@ -342,11 +344,13 @@ public class EveHBase implements HBaseClient {
 
         private HashMap<String, String> confMap = new HashMap<>();
 
+        private PoolConf poolConf;
+
         /**
          * 直接使用HBase的Configuration对象
          *
          * @param conf org.apache.hadoop.conf.Configuration
-         * @return EveHBase.Builder()
+         * @return {@link EveHBase.Builder}
          */
         public Builder config(Configuration conf) {
             this.conf = conf;
@@ -358,7 +362,7 @@ public class EveHBase implements HBaseClient {
          *
          * @param name  key
          * @param value value
-         * @return EveHBase.Builder()
+         * @return {@link EveHBase.Builder}
          */
         public Builder config(String name, String value) {
             this.confMap.put(name, value);
@@ -369,15 +373,29 @@ public class EveHBase implements HBaseClient {
          * 启用安全认证支持
          *
          * @param securityConf 安全认证配置
-         * @return EveHBase.Builder()
+         * @return {@link EveHBase.Builder}
          */
         public Builder enableSafeSupport(SecurityConf securityConf) {
             this.securityConf = securityConf;
             return this;
         }
 
+        /**
+         * 设置线程池配置
+         *
+         * @param core          核心数
+         * @param max           最大线程数
+         * @param keepAlive     多少时间后关闭多余线程, 单位:毫秒
+         * @param queueCapacity 队列容量
+         * @return {@link EveHBase.Builder}
+         */
+        public Builder pool(int core, int max, int keepAlive, int queueCapacity) {
+            poolConf = new PoolConf(core, max, keepAlive, queueCapacity);
+            return this;
+        }
+
         public EveHBase build() {
-            return HBaseClientDirector.create(conf, confMap, securityConf);
+            return HBaseClientDirector.create(conf, confMap, securityConf, poolConf);
         }
 
     }

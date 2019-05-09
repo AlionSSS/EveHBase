@@ -104,7 +104,7 @@ public class GetTest {
             }
         });
 
-        PoolEngine.INSTANCE.shutdown();
+        PoolEngine.getInstance().shutdown();
 
 //        client.close();
 

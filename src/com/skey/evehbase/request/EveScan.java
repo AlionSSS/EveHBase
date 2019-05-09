@@ -112,7 +112,6 @@ public class EveScan {
          * @return {@link EveScan.Builder}
          */
         public Builder limit(long max) {
-            if (max < 0) throw new IllegalArgumentException("最大返回条数max不能小于0！");
             this.max = max;
             return this;
         }

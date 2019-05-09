@@ -1,5 +1,7 @@
 package com.skey.evehbase.client;
 
+import com.skey.evehbase.pool.PoolConf;
+import com.skey.evehbase.pool.PoolEngine;
 import com.skey.evehbase.security.LoginUtil;
 import com.skey.evehbase.security.SecurityConf;
 import org.apache.hadoop.conf.Configuration;
@@ -33,12 +35,15 @@ public class HBaseClientDirector {
      * @param securityConf 安全配置
      * @return HBase客户端
      */
-    static EveHBase create(Configuration conf, HashMap<String, String> confMap, SecurityConf securityConf) {
+    static EveHBase create(Configuration conf, HashMap<String, String> confMap,
+                           SecurityConf securityConf, PoolConf poolConf) {
         Connection conn = null;
         try {
+            if (poolConf != null) confThreadPool(poolConf);
             Configuration fixedConf = fixConf(conf, confMap);
             if (securityConf != null) login(fixedConf, securityConf);
             conn = ConnectionFactory.createConnection(fixedConf);
+
         } catch (IOException e) {
             if (LOG.isErrorEnabled()) LOG.error("HBase连接异常", e);
         }
@@ -96,6 +101,23 @@ public class HBaseClientDirector {
                     securityConf.getUserKeytabFile(),
                     securityConf.getKrb5File(),
                     conf);
+        }
+    }
+
+    /**
+     * 配置线程池
+     *
+     * @param poolConf 线程池配置
+     */
+    private static void confThreadPool(PoolConf poolConf) {
+        requireGTZero(poolConf.core, poolConf.maximum, poolConf.keepAlive, poolConf.queueCapacity);
+
+        PoolEngine.setConf(poolConf.core, poolConf.maximum, poolConf.keepAlive, poolConf.queueCapacity);
+    }
+
+    private static void requireGTZero(int... nums) {
+        for (int num : nums) {
+            if (num <= 0 ) throw new IllegalArgumentException("线程池参数必须大于0!");
         }
     }
 

@@ -11,30 +11,47 @@ import java.util.concurrent.*;
  *
  * @author A Lion~
  */
-public enum PoolEngine {
+public class PoolEngine {
 
-    INSTANCE;
+    private PoolEngine() {
 
-    public static final String NAME_FORMAT = "eve-pool-%d";
+    }
 
-    public static final int CORE_POOL_SIZE = 4;
+    public static PoolEngine getInstance() {
+        return InnerClass.instance;
+    }
 
-    public static final int MAXIMUM_POOL_SIZE = 8;
+    private static class InnerClass {
+        private static final PoolEngine instance = new PoolEngine();
+    }
 
-    public static final long KEEP_ALIVE_TIME = 100;
+    private static final String NAME_FORMAT = "eve-pool-%d";
 
-    public static final int QUEUE_CAPACITY = 1024;
+    private static int corePoolSize = 4;
+
+    private static int maximumPoolSize = 8;
+
+    private static long keepAliveTime = 100;
+
+    private static int queueCapacity = 1024;
+
+    public static void setConf(int core, int maximum, long keepAlive, int capacity) {
+        corePoolSize = core;
+        maximumPoolSize = maximum;
+        keepAliveTime = keepAlive;
+        queueCapacity = capacity;
+    }
 
     private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
                 .setNameFormat(NAME_FORMAT)
                 .build();
 
     private ExecutorService pool = new ThreadPoolExecutor(
-            CORE_POOL_SIZE,
-            MAXIMUM_POOL_SIZE,
-            KEEP_ALIVE_TIME,
+            corePoolSize,
+            maximumPoolSize,
+            keepAliveTime,
             TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(QUEUE_CAPACITY),
+            new LinkedBlockingQueue<>(queueCapacity),
             namedThreadFactory,
             new ThreadPoolExecutor.AbortPolicy());
 
@@ -47,7 +64,7 @@ public enum PoolEngine {
     }
 
     public void shutdown() {
-        pool.shutdown();
+        if (pool != null) pool.shutdown();
     }
 
 }

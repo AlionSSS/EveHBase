@@ -33,6 +33,7 @@ class EveScanDirector {
      */
     static EveScan create(String table, String startRow, String endRow,
                                  Map<String, Set<String>> columnMap, Filter filter, long max) {
+        if (max < 0) throw new IllegalArgumentException("最大返回条数max不能小于0！");
 
         TableName tableName = TableName.valueOf(table);
 
