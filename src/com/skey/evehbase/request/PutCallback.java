@@ -1,6 +1,10 @@
 package com.skey.evehbase.request;
 
 
+import org.apache.hadoop.hbase.client.Put;
+
+import java.util.List;
+
 /**
  * HBase Put 回调接口
  * <p>
@@ -12,6 +16,6 @@ public interface PutCallback {
 
     void onSuccessful();
 
-    void onFailed(Exception e);
+    void onFailed(Exception e, List<Put> puts);
 
 }

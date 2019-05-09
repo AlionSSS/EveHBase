@@ -206,7 +206,7 @@ public class EveHBase implements HBaseClient {
                 put(tableName, putList);
                 if (callback != null) callback.onSuccessful();
             } catch (IOException e) {
-                if (callback != null) callback.onFailed(e);
+                if (callback != null) callback.onFailed(e, putList);
             }
         });
     }

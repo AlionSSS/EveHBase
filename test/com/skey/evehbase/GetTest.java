@@ -176,8 +176,9 @@ public class GetTest {
 //            }
 //
 //            @Override
-//            public void onFailed(Exception e) {
+//            public void onFailed(Exception e, List<Put> puts) {
 //                System.out.println("GetTest.onFailed 提交Put失败!");
+//                System.out.println("失败的 puts = " + puts);
 //            }
 //        });
 //        client.putAsync("tb_test", putList, null);
