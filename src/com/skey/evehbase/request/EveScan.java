@@ -19,12 +19,10 @@ public class EveScan {
 
     private final Scan scan;
 
-    private final long max;
 
-    EveScan(TableName tableName, Scan scan, long max) {
+    EveScan(TableName tableName, Scan scan) {
         this.tableName = tableName;
         this.scan = scan;
-        this.max = max;
     }
 
     public TableName getTableName() {
@@ -33,10 +31,6 @@ public class EveScan {
 
     public Scan getScan() {
         return scan;
-    }
-
-    public long getMax() {
-        return max;
     }
 
     public static class Builder {

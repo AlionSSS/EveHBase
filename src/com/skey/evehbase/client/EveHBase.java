@@ -248,12 +248,9 @@ public class EveHBase implements HBaseClient {
 
             // 提交scan请求
             scanner = table.getScanner(eveScan.getScan());
-            int i = 0;
-            long max = eveScan.getMax();
             Result r;
-            while ((r = scanner.next()) != null && i <= max) {
+            while ((r = scanner.next()) != null ) {
                 results.add(r);
-                i++;
             }
 
             if (LOG.isInfoEnabled()) LOG.info("Column value filter successfully.");

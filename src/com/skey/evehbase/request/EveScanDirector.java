@@ -37,9 +37,9 @@ class EveScanDirector {
 
         TableName tableName = TableName.valueOf(table);
 
-        Scan scan = generateScan(columnMap, startRow, endRow, filter);
+        Scan scan = generateScan(columnMap, startRow, endRow, filter, max);
 
-        return new EveScan(tableName, scan, max);
+        return new EveScan(tableName, scan);
     }
 
     /**
@@ -49,10 +49,13 @@ class EveScanDirector {
      * @param startRow  HBase的startRowKey
      * @param endRow    HBase的endRowKey
      * @param filter    HBase的过滤器 {@link Filter}
+     * @param max 结果最大返回条数
      * @return {@link Scan}
      */
-    private static Scan generateScan(Map<String, Set<String>> columnMap, String startRow, String endRow, Filter filter) {
+    private static Scan generateScan(Map<String, Set<String>> columnMap, String startRow, String endRow, Filter filter, long max) {
         Scan scan = new Scan();
+
+        scan.setMaxResultSize(max);
 
         // 添加要查询的列
         for (Map.Entry<String, Set<String>> entry : columnMap.entrySet()) {
