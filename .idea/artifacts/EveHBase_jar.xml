@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="EveHBase:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/EveHBase_jar</output-path>
-    <root id="archive" name="EveHBase.jar">
-      <element id="module-output" name="EveHBase" />
-    </root>
-  </artifact>
-</component>
