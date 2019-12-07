@@ -54,6 +54,10 @@ EveTable eveTable = new EveTable.Builder()
 
 client.create(eveTable);
 ```
+- 关闭并删除表
+```java
+client.disableAndDelete(eveTable);
+```
 - 预分区
 ```java
 String[] splitKeys = {"aaa", "ddd", "hhh", "vvv"};
