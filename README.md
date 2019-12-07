@@ -5,7 +5,7 @@
 - 功能包括：建表、预分区、建索引、异步请求、Put、Get、Scan、结果自动解析为JavaBean等
 
 ## Dependencies
-- 本项目EveHBase.jar ---> 从[releases](https://github.com/AlionSSS/EveHBase/releases/download/v1.1.3/EveHBase.jar)处获取
+- 本项目EveHBase.jar ---> 从[releases](https://github.com/AlionSSS/EveHBase/releases)处获取
 - 华为HBase一系列依赖包 ---> 从华为HBase集群中获取
 
 ## Examples
