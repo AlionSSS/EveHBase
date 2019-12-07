@@ -102,10 +102,10 @@ public class EveHBase implements HBaseClient {
         try {
             admin = conn.getAdmin();
             if (!admin.tableExists(tn)) {
-                if (LOG.isInfoEnabled()) LOG.info("Creating table...");
+                if (LOG.isInfoEnabled()) LOG.info("Creating table " + tn.getNameAsString() + " ...");
                 admin.createTable(htd);
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("ClusterStatus: ", admin.getClusterStatus());
+                    LOG.info("ClusterStatus: {}", admin.getClusterStatus());
                     LOG.info("NamespaceDescriptors: ", (Object[]) admin.listNamespaceDescriptors());
                     LOG.info("Table created successfully.");
                 }
@@ -118,6 +118,127 @@ public class EveHBase implements HBaseClient {
             close(admin, "Close admin failed ");
         }
         if (LOG.isInfoEnabled()) LOG.info("Exiting create.");
+    }
+
+    @Override
+    public void disable(EveTable eveTable) {
+        if (LOG.isInfoEnabled()) LOG.info("Entering disable.");
+
+        TableName tn = eveTable.getTableName();
+
+        Admin admin = null;
+        try {
+            admin = conn.getAdmin();
+            if (admin.tableExists(tn)) {
+                if (LOG.isInfoEnabled()) LOG.info("Disable table " + tn.getNameAsString() + " ...");
+
+                admin.disableTable(tn);
+
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("ClusterStatus: {}", admin.getClusterStatus());
+                    LOG.info("NamespaceDescriptors: ", (Object[]) admin.listNamespaceDescriptors());
+                    LOG.info("Table disable successfully.");
+                }
+            } else {
+                if (LOG.isWarnEnabled()) LOG.warn("table " + tn.getNameAsString() + " not exists");
+            }
+        } catch (IOException e) {
+            if (LOG.isErrorEnabled()) LOG.error("Disable table failed.", e);
+        } finally {
+            close(admin, "Close admin failed ");
+        }
+        if (LOG.isInfoEnabled()) LOG.info("Exiting disable.");
+    }
+
+    @Override
+    public void enable(EveTable eveTable) {
+        if (LOG.isInfoEnabled()) LOG.info("Entering enable.");
+
+        TableName tn = eveTable.getTableName();
+
+        Admin admin = null;
+        try {
+            admin = conn.getAdmin();
+            if (admin.tableExists(tn)) {
+                if (LOG.isInfoEnabled()) LOG.info("Enable table " + tn.getNameAsString() + " ...");
+
+                admin.enableTable(tn);
+
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("ClusterStatus: {}", admin.getClusterStatus());
+                    LOG.info("NamespaceDescriptors: ", (Object[]) admin.listNamespaceDescriptors());
+                    LOG.info("Table enable successfully.");
+                }
+            } else {
+                if (LOG.isWarnEnabled()) LOG.warn("table " + tn.getNameAsString() + " not exists");
+            }
+        } catch (IOException e) {
+            if (LOG.isErrorEnabled()) LOG.error("Enable table failed.", e);
+        } finally {
+            close(admin, "Close admin failed ");
+        }
+        if (LOG.isInfoEnabled()) LOG.info("Exiting enable.");
+    }
+
+    @Override
+    public void delete(EveTable eveTable) {
+        if (LOG.isInfoEnabled()) LOG.info("Entering delete.");
+
+        TableName tn = eveTable.getTableName();
+
+        Admin admin = null;
+        try {
+            admin = conn.getAdmin();
+            if (admin.tableExists(tn)) {
+                if (LOG.isInfoEnabled()) LOG.info("Delete table " + tn.getNameAsString() + " ...");
+
+                admin.deleteTable(tn);
+
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("ClusterStatus: {}", admin.getClusterStatus());
+                    LOG.info("NamespaceDescriptors: ", (Object[]) admin.listNamespaceDescriptors());
+                    LOG.info("Table delete successfully.");
+                }
+            } else {
+                if (LOG.isWarnEnabled()) LOG.warn("table " + tn.getNameAsString() + " not exists");
+            }
+        } catch (IOException e) {
+            if (LOG.isErrorEnabled()) LOG.error("Delete table failed.", e);
+        } finally {
+            close(admin, "Close admin failed ");
+        }
+        if (LOG.isInfoEnabled()) LOG.info("Exiting delete.");
+    }
+
+    @Override
+    public void disableAndDelete(EveTable eveTable) {
+        if (LOG.isInfoEnabled()) LOG.info("Entering DisableAndDelete.");
+
+        TableName tn = eveTable.getTableName();
+
+        Admin admin = null;
+        try {
+            admin = conn.getAdmin();
+            if (admin.tableExists(tn)) {
+                if (LOG.isInfoEnabled()) LOG.info("DisableAndDelete table " + tn.getNameAsString() + " ...");
+
+                admin.disableTable(tn);
+                admin.deleteTable(tn);
+
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("ClusterStatus: {}", admin.getClusterStatus());
+                    LOG.info("NamespaceDescriptors: ", (Object[]) admin.listNamespaceDescriptors());
+                    LOG.info("Table disable and delete successfully.");
+                }
+            } else {
+                if (LOG.isWarnEnabled()) LOG.warn("table " + tn.getNameAsString() + " not exists");
+            }
+        } catch (IOException e) {
+            if (LOG.isErrorEnabled()) LOG.error("DisableAndDelete table failed.", e);
+        } finally {
+            close(admin, "Close admin failed ");
+        }
+        if (LOG.isInfoEnabled()) LOG.info("Exiting DisableAndDelete.");
     }
 
     @Override
@@ -141,7 +262,7 @@ public class EveHBase implements HBaseClient {
             // key 转 byte
             byte[][] sk = new byte[splitKeys.length][];
             for (int i = 0; i < splitKeys.length - 1; i++) {
-                sk[i - 1] = splitKeys[i].getBytes();
+                sk[i] = splitKeys[i].getBytes();
             }
 
             for (HRegionInfo regionInfo : regionSet) {
@@ -380,10 +501,10 @@ public class EveHBase implements HBaseClient {
         /**
          * 设置线程池配置
          *
-         * @param core          核心数
-         * @param max           最大线程数
-         * @param keepAlive     多少时间后关闭多余线程, 单位:毫秒
-         * @param queueCapacity 队列容量
+         * @param core          核心数（默认 4）
+         * @param max           最大线程数（默认 8）
+         * @param keepAlive     多少时间后关闭多余线程, 单位:毫秒（默认 100）
+         * @param queueCapacity 队列容量 （默认 LinkedBlockingQueue（1024））
          * @return {@link EveHBase.Builder}
          */
         public Builder pool(int core, int max, int keepAlive, int queueCapacity) {

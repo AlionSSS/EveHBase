@@ -43,6 +43,30 @@ public interface HBaseClient {
     void create(EveTable eveTable);
 
     /**
+     * 关闭表
+     * @param eveTable {@link EveTable}
+     */
+    void disable(EveTable eveTable);
+
+    /**
+     * 启用表
+     * @param eveTable {@link EveTable}
+     */
+    void enable(EveTable eveTable);
+
+    /**
+     * 删表
+     * @param eveTable {@link EveTable}
+     */
+    void delete(EveTable eveTable);
+
+    /**
+     * 关闭表，并删除
+     * @param eveTable {@link EveTable}
+     */
+    void disableAndDelete(EveTable eveTable);
+
+    /**
      * 表Region拆分
      *
      * @param tableName 表名
