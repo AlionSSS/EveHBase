@@ -51,7 +51,7 @@ public class PoolEngine {
             maximumPoolSize,
             keepAliveTime,
             TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(queueCapacity),
+            new ArrayBlockingQueue<>(queueCapacity),
             namedThreadFactory,
             new ThreadPoolExecutor.AbortPolicy());
 
