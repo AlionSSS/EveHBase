@@ -1,6 +1,8 @@
 package com.skey.evehbase.client;
 
-import com.skey.evehbase.pool.PoolConf;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.skey.evehbase.pool.DefaultExecutorServiceAdapter;
+import com.skey.evehbase.pool.ExecutorServiceAdapter;
 import com.skey.evehbase.pool.PoolEngine;
 import com.skey.evehbase.security.LoginUtil;
 import com.skey.evehbase.security.SecurityConf;
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * 生成客户端的导演类
@@ -36,10 +39,10 @@ public class HBaseClientDirector {
      * @return HBase客户端
      */
     static EveHBase create(Configuration conf, HashMap<String, String> confMap,
-                           SecurityConf securityConf, PoolConf poolConf) {
+                           SecurityConf securityConf, ExecutorServiceAdapter adapter) {
         Connection conn = null;
         try {
-            if (poolConf != null) confThreadPool(poolConf);
+            checkThreadPool(adapter);
             Configuration fixedConf = fixConf(conf, confMap);
             if (securityConf != null) login(fixedConf, securityConf);
             conn = ConnectionFactory.createConnection(fixedConf);
@@ -105,19 +108,23 @@ public class HBaseClientDirector {
     }
 
     /**
-     * 配置线程池
+     * 检查线程池
      *
-     * @param poolConf 线程池配置
+     * @param adapter 线程池适配器
      */
-    private static void confThreadPool(PoolConf poolConf) {
-        requireGTZero(poolConf.core, poolConf.maximum, poolConf.keepAlive, poolConf.queueCapacity);
-
-        PoolEngine.setConf(poolConf.core, poolConf.maximum, poolConf.keepAlive, poolConf.queueCapacity);
+    private static void checkThreadPool(ExecutorServiceAdapter adapter) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("没有配置ExecutorServiceAdapter，将采用默认的ThreadPool(core=4, max=8, ArrayBlockingQueue(capacity=1024))");
+        }
+        if (adapter == null) {
+            adapter = new DefaultExecutorServiceAdapter();
+        }
+        PoolEngine.setAdapter(adapter);
     }
 
     private static void requireGTZero(int... nums) {
         for (int num : nums) {
-            if (num <= 0 ) throw new IllegalArgumentException("线程池参数必须大于0!");
+            if (num <= 0) throw new IllegalArgumentException("线程池参数必须大于0!");
         }
     }
 

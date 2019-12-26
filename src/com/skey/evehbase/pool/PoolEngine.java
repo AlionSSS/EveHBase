@@ -13,8 +13,12 @@ import java.util.concurrent.*;
  */
 public class PoolEngine {
 
-    private PoolEngine() {
+    private ExecutorService pool;
 
+    private static ExecutorServiceAdapter adapter;
+
+    private PoolEngine() {
+        pool = adapter.generateExecutorService();
     }
 
     public static PoolEngine getInstance() {
@@ -25,46 +29,28 @@ public class PoolEngine {
         private static final PoolEngine instance = new PoolEngine();
     }
 
-    private static final String NAME_FORMAT = "eve-pool-%d";
-
-    private static int corePoolSize = 4;
-
-    private static int maximumPoolSize = 8;
-
-    private static long keepAliveTime = 100;
-
-    private static int queueCapacity = 1024;
-
-    public static void setConf(int core, int maximum, long keepAlive, int capacity) {
-        corePoolSize = core;
-        maximumPoolSize = maximum;
-        keepAliveTime = keepAlive;
-        queueCapacity = capacity;
+    public static void setAdapter(ExecutorServiceAdapter adapter) {
+        PoolEngine.adapter = adapter;
     }
 
-    private ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-                .setNameFormat(NAME_FORMAT)
-                .build();
-
-    private ExecutorService pool = new ThreadPoolExecutor(
-            corePoolSize,
-            maximumPoolSize,
-            keepAliveTime,
-            TimeUnit.MILLISECONDS,
-            new ArrayBlockingQueue<>(queueCapacity),
-            namedThreadFactory,
-            new ThreadPoolExecutor.AbortPolicy());
-
     public void execute(Runnable runnable) {
-        pool.execute(runnable);
+        if (pool != null) {
+            pool.execute(runnable);
+        }
     }
 
     public <T> Future<T> submit(Callable<T> callable) {
-        return pool.submit(callable);
+        if (pool != null) {
+            return pool.submit(callable);
+        } else {
+            return null;
+        }
     }
 
     public void shutdown() {
-        if (pool != null) pool.shutdown();
+        if (pool != null) {
+            pool.shutdown();
+        }
     }
 
 }

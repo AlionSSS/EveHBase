@@ -1,13 +1,12 @@
 package com.skey.evehbase.client;
 
-import com.skey.evehbase.pool.PoolConf;
+import com.skey.evehbase.pool.ExecutorServiceAdapter;
 import com.skey.evehbase.pool.PoolEngine;
 import com.skey.evehbase.request.*;
 import com.skey.evehbase.security.SecurityConf;
 import com.skey.evehbase.util.GenericUtils;
 import com.skey.evehbase.util.HResultUtils;
 import com.skey.evehbase.util.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -20,13 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * HBase客户端
@@ -462,7 +457,7 @@ public class EveHBase implements HBaseClient {
 
         private HashMap<String, String> confMap = new HashMap<>();
 
-        private PoolConf poolConf;
+        private ExecutorServiceAdapter adapter;
 
         /**
          * 直接使用HBase的Configuration对象
@@ -501,19 +496,16 @@ public class EveHBase implements HBaseClient {
         /**
          * 设置线程池配置
          *
-         * @param core          核心数（默认 4）
-         * @param max           最大线程数（默认 8）
-         * @param keepAlive     多少时间后关闭多余线程, 单位:毫秒（默认 100）
-         * @param queueCapacity 队列容量 （默认 LinkedBlockingQueue（1024））
+         * @param adapter 用于构造线程池，默认ThreadPool(core=4,max=8,ArrayBlockingQueue(1024))
          * @return {@link EveHBase.Builder}
          */
-        public Builder pool(int core, int max, int keepAlive, int queueCapacity) {
-            poolConf = new PoolConf(core, max, keepAlive, queueCapacity);
+        public Builder pool(ExecutorServiceAdapter adapter) {
+            this.adapter = adapter;
             return this;
         }
 
         public EveHBase build() {
-            return HBaseClientDirector.create(conf, confMap, securityConf, poolConf);
+            return HBaseClientDirector.create(conf, confMap, securityConf, adapter);
         }
 
     }
