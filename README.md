@@ -43,6 +43,19 @@ HBaseClient client = new EveHBase.Builder()
         .build();
 
 ```
+- 自定义线程池
+```java
+ExecutorServiceAdapter adapter = new ExecutorServiceAdapter() {
+            @Override
+            public ExecutorService generateExecutorService() {
+                return Executors.newFixedThreadPool(4);
+            }
+        };
+HBaseClient client = new EveHBase.Builder()
+        .config(hbaseConf)
+        .pool(adapter)
+        .build();
+```
 - 建表
 ```java
 EveTable eveTable = new EveTable.Builder()
