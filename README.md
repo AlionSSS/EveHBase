@@ -69,7 +69,7 @@ client.create(eveTable);
 ```
 - 关闭并删除表
 ```java
-client.disableAndDelete(eveTable);
+client.disableAndDelete("tableName");
 ```
 - 预分区
 ```java
