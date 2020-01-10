@@ -7,6 +7,7 @@ import com.skey.evehbase.security.SecurityConf;
 import com.skey.evehbase.util.GenericUtils;
 import com.skey.evehbase.util.HResultUtils;
 import com.skey.evehbase.util.IOUtils;
+import com.skey.evehbase.util.PutBuffer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -111,15 +112,33 @@ public class EveHBase implements HBaseClient {
             if (LOG.isErrorEnabled()) LOG.error("Create table failed.", e);
         } finally {
             close(admin, "Close admin failed ");
+            if (LOG.isInfoEnabled()) LOG.info("Exiting create.");
         }
-        if (LOG.isInfoEnabled()) LOG.info("Exiting create.");
     }
 
     @Override
-    public void disable(EveTable eveTable) {
+    public Table getTable(String tableName) {
+        if (LOG.isInfoEnabled()) LOG.info("Entering getTable.");
+
+        Table table = null;
+        try {
+            table = conn.getTable(TableName.valueOf(tableName));
+
+            if (LOG.isInfoEnabled()) LOG.info("GetTable successfully.");
+        } catch (IOException e) {
+            if (LOG.isErrorEnabled()) LOG.error("Get table failed.", e);
+        } finally {
+            if (LOG.isInfoEnabled()) LOG.info("Exiting getTable.");
+        }
+
+        return table;
+    }
+
+    @Override
+    public void disable(String tableName) {
         if (LOG.isInfoEnabled()) LOG.info("Entering disable.");
 
-        TableName tn = eveTable.getTableName();
+        TableName tn = TableName.valueOf(tableName);
 
         Admin admin = null;
         try {
@@ -141,15 +160,15 @@ public class EveHBase implements HBaseClient {
             if (LOG.isErrorEnabled()) LOG.error("Disable table failed.", e);
         } finally {
             close(admin, "Close admin failed ");
+            if (LOG.isInfoEnabled()) LOG.info("Exiting disable.");
         }
-        if (LOG.isInfoEnabled()) LOG.info("Exiting disable.");
     }
 
     @Override
-    public void enable(EveTable eveTable) {
+    public void enable(String tableName) {
         if (LOG.isInfoEnabled()) LOG.info("Entering enable.");
 
-        TableName tn = eveTable.getTableName();
+        TableName tn = TableName.valueOf(tableName);
 
         Admin admin = null;
         try {
@@ -171,15 +190,15 @@ public class EveHBase implements HBaseClient {
             if (LOG.isErrorEnabled()) LOG.error("Enable table failed.", e);
         } finally {
             close(admin, "Close admin failed ");
+            if (LOG.isInfoEnabled()) LOG.info("Exiting enable.");
         }
-        if (LOG.isInfoEnabled()) LOG.info("Exiting enable.");
     }
 
     @Override
-    public void delete(EveTable eveTable) {
+    public void delete(String tableName) {
         if (LOG.isInfoEnabled()) LOG.info("Entering delete.");
 
-        TableName tn = eveTable.getTableName();
+        TableName tn = TableName.valueOf(tableName);
 
         Admin admin = null;
         try {
@@ -201,15 +220,15 @@ public class EveHBase implements HBaseClient {
             if (LOG.isErrorEnabled()) LOG.error("Delete table failed.", e);
         } finally {
             close(admin, "Close admin failed ");
+            if (LOG.isInfoEnabled()) LOG.info("Exiting delete.");
         }
-        if (LOG.isInfoEnabled()) LOG.info("Exiting delete.");
     }
 
     @Override
-    public void disableAndDelete(EveTable eveTable) {
+    public void disableAndDelete(String tableName) {
         if (LOG.isInfoEnabled()) LOG.info("Entering DisableAndDelete.");
 
-        TableName tn = eveTable.getTableName();
+        TableName tn = TableName.valueOf(tableName);
 
         Admin admin = null;
         try {
@@ -232,8 +251,8 @@ public class EveHBase implements HBaseClient {
             if (LOG.isErrorEnabled()) LOG.error("DisableAndDelete table failed.", e);
         } finally {
             close(admin, "Close admin failed ");
+            if (LOG.isInfoEnabled()) LOG.info("Exiting DisableAndDelete.");
         }
-        if (LOG.isInfoEnabled()) LOG.info("Exiting DisableAndDelete.");
     }
 
     @Override
@@ -269,8 +288,8 @@ public class EveHBase implements HBaseClient {
         } finally {
             close(table, "Close table failed ");
             close(admin, "Close admin failed ");
+            if (LOG.isInfoEnabled()) LOG.info("Exiting multiSplit.");
         }
-        if (LOG.isInfoEnabled()) LOG.info("Exiting multiSplit.");
     }
 
     @Override
@@ -313,8 +332,14 @@ public class EveHBase implements HBaseClient {
         } finally {
             close(admin, "Close admin failed ");
             close(iAdmin, "Close admin failed ");
+            if (LOG.isInfoEnabled()) LOG.info("Exiting createIndex.");
         }
-        if (LOG.isInfoEnabled()) LOG.info("Exiting createIndex.");
+    }
+
+    @Override
+    public PutBuffer createPutBuffer(String tableName, int bufferSize, int duration) {
+        Table table = getTable(tableName);
+        return new PutBuffer(table, bufferSize, duration);
     }
 
     @Override
@@ -347,8 +372,8 @@ public class EveHBase implements HBaseClient {
             if (LOG.isInfoEnabled()) LOG.info("Put successfully.");
         } finally {
             close(table, "Close table failed ");
+            if (LOG.isInfoEnabled()) LOG.info("Exiting Put.");
         }
-        if (LOG.isInfoEnabled()) LOG.info("Exiting put.");
     }
 
     @Override
@@ -365,7 +390,7 @@ public class EveHBase implements HBaseClient {
             // 提交scan请求
             scanner = table.getScanner(eveScan.getScan());
             Result r;
-            while ((r = scanner.next()) != null ) {
+            while ((r = scanner.next()) != null) {
                 results.add(r);
             }
 
@@ -416,7 +441,7 @@ public class EveHBase implements HBaseClient {
 
         List<T> objects = HResultUtils.parseResults(results, clazz);
 
-        if (LOG.isInfoEnabled()) LOG.info("Exiting testGet.");
+        if (LOG.isInfoEnabled()) LOG.info("Exiting Get.");
         return objects;
     }
 

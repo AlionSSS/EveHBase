@@ -197,6 +197,17 @@ try {
     e.printStackTrace();
 }
 ```
+- 使用Put缓冲器入库
+```java
+PutBuffer buffer = client.createPutBuffer("test_table", 1000, 5000);
+for (int i = 0; i < 100_000; i++) {
+    Put put = new Put(Bytes.toBytes("ggg_132131" + i));
+    put.addColumn(Bytes.toBytes("f"), Bytes.toBytes("phone"), Bytes.toBytes("1891234567" + i));
+    
+    buffer.put(put);
+}
+buffer.flush();
+```
 - 提交Put异步请求
 ```java
 client.putAsync("tb_test", putList, new PutCallback() {

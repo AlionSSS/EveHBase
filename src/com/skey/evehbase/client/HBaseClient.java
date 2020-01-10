@@ -1,9 +1,11 @@
 package com.skey.evehbase.client;
 
 import com.skey.evehbase.request.*;
+import com.skey.evehbase.util.PutBuffer;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Table;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,28 +45,36 @@ public interface HBaseClient {
     void create(EveTable eveTable);
 
     /**
-     * 关闭表
-     * @param eveTable {@link EveTable}
+     * HBase获取表
+     *
+     * @param tableName 表名
+     * @return HBase 的 {@link Table}
      */
-    void disable(EveTable eveTable);
+    Table getTable(String tableName);
+
+    /**
+     * 关闭表
+     * @param tableName 表名
+     */
+    void disable(String tableName);
 
     /**
      * 启用表
-     * @param eveTable {@link EveTable}
+     * @param tableName 表名
      */
-    void enable(EveTable eveTable);
+    void enable(String tableName);
 
     /**
      * 删表
-     * @param eveTable {@link EveTable}
+     * @param tableName 表名
      */
-    void delete(EveTable eveTable);
+    void delete(String tableName);
 
     /**
      * 关闭表，并删除
-     * @param eveTable {@link EveTable}
+     * @param tableName 表名
      */
-    void disableAndDelete(EveTable eveTable);
+    void disableAndDelete(String tableName);
 
     /**
      * 表Region拆分
@@ -83,6 +93,15 @@ public interface HBaseClient {
      * @param indexName  索引名
      */
     void createIndex(String tableName, String familyName, String qualifier, String indexName);
+
+    /**
+     * Put缓冲器，辅助入表，用完请记得调用 {@link PutBuffer#flush}
+     * @param tableName 表名
+     * @param bufferSize 缓冲区大小
+     * @param duration 每批入表最大时间间隔，毫秒
+     * @return 缓冲器 {@link PutBuffer}
+     */
+    PutBuffer createPutBuffer(String tableName, int bufferSize, int duration);
 
     void put(String tableName, Put put) throws IOException;
 
