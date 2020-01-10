@@ -64,6 +64,12 @@ public class HResultUtils {
                             byte[] qualifier = Bytes.toBytes(cfField.getName());
                             cfField.set(cfObj, Bytes.toString(result.getValue(family, qualifier)));
                         }
+                        // FIXME: 下面的代码待测试
+//                        for (Field cfField : value.keySet()) {
+//                            byte[] family = Bytes.toBytes(key.getName());
+//                            byte[] qualifier = Bytes.toBytes(cfField.getName());
+//                            cfField.set(cfObj, Bytes.toString(result.getValue(family, qualifier)));
+//                        }
                         key.set(obj, cfObj);
                     }
                 }
