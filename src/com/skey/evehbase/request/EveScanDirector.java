@@ -5,7 +5,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Set;
 

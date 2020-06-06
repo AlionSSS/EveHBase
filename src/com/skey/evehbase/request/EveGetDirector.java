@@ -4,7 +4,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

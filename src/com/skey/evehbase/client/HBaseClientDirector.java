@@ -1,6 +1,5 @@
 package com.skey.evehbase.client;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.skey.evehbase.pool.DefaultExecutorServiceAdapter;
 import com.skey.evehbase.pool.ExecutorServiceAdapter;
 import com.skey.evehbase.pool.PoolEngine;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
 
 /**
  * 生成客户端的导演类
@@ -82,7 +80,7 @@ public class HBaseClientDirector {
     }
 
     /**
-     * Kerbos认证登录
+     * Kerberos认证登录
      *
      * @param conf         HBase的Configuration
      * @param securityConf 安全认证配置

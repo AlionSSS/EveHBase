@@ -4,7 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * Description
+ * Description: 泛型工具类
  *
  * @author ALion
  * @version 2019/5/9 17:36

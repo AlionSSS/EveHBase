@@ -1,8 +1,8 @@
 package com.skey.evehbase.pool;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * 全局的线程池

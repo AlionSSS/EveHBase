@@ -6,8 +6,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 
-import javax.annotation.Nonnull;
-
 /**
  * 生成EveGet的导演类
  * <p>
